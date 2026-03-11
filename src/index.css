@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue:wght@400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-display: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+
+  --color-gold: #D4AF37;
+  --color-obsidian: #050505;
+  --color-paper: #F5F5F0;
+  
+  --color-neon: #00FF66;
+  --color-dark-base: #050505;
+  --color-dark-surface: #0A0A0A;
+}
+
+@layer base {
+  body {
+    @apply bg-obsidian text-white selection:bg-neon selection:text-black;
+    overflow-x: hidden;
+    font-weight: 500; /* Make default font bolder */
+  }
+}
+
+@layer utilities {
+  .text-outline {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+    color: transparent;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .neon-glow-hover:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 102, 0.1);
+    border-color: rgba(0, 255, 102, 0.3);
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 30px rgba(0, 255, 102, 0.1);
+    border-color: rgba(0, 255, 102, 0.3);
+  }
+
+  .vertical-rl {
+    writing-mode: vertical-rl;
+  }
+
+  .mask-fade-bottom {
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  }
+
+  .mask-fade-top {
+    mask-image: linear-gradient(to top, black 80%, transparent 100%);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 102, 0.3);
+    border-radius: 2px;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+}
+
+.marquee-track-reverse {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee-reverse 20s linear infinite;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.8; }
+  5% { opacity: 0.2; }
+  10% { opacity: 0.8; }
+  15% { opacity: 0.1; }
+  20% { opacity: 0.8; }
+  100% { opacity: 0.8; }
+}
+
+@keyframes distortion {
+  0% { clip-path: inset(10% 0 30% 0); }
+  20% { clip-path: inset(40% 0 10% 0); }
+  40% { clip-path: inset(20% 0 50% 0); }
+  60% { clip-path: inset(60% 0 20% 0); }
+  80% { clip-path: inset(10% 0 80% 0); }
+  100% { clip-path: inset(10% 0 30% 0); }
+}
+
+.animate-glitch {
+  animation: glitch 0.2s infinite;
+}
+
+.animate-flicker {
+  animation: flicker 0.1s infinite;
+}
+
+.animate-distortion {
+  animation: distortion 0.1s infinite;
+}
