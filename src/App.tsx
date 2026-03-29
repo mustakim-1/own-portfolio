@@ -5,9 +5,9 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Navbar } from './Navbar';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionTemplate, useMotionValue, useInView, MotionValue } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue, useInView, MotionValue } from 'motion/react';
 import { Testimonials } from './Testimonials';
-import { X, Cpu, Mail, Linkedin, Github, ArrowRight, Globe, Facebook } from 'lucide-react';
+import { X, Cpu, Linkedin, Github, ArrowRight, Facebook } from 'lucide-react';
 
 import dialcraftImg from './images/640278467_122203525586563833_3738548141300404979_n.jpg';
 import colorPaletteImg from './images/Screenshot 2026-03-09 011828.png';
@@ -284,31 +284,7 @@ const FadeIn = ({ children, delay = 0, className = "" }: { children: React.React
   </motion.div>
 );
 
-const CardRing = ({ index, scrollProgress }: { index: number; scrollProgress: MotionValue<number> }) => {
-  const scale = useTransform(scrollProgress, [0, 1], [0.1 + index * 0.15, 1.5 + index * 0.15]);
-  const opacity = useTransform(scrollProgress, [0, 0.5, 1], [0, 0.2 - index * 0.03, 0]);
-  
-  return (
-    <motion.div
-      style={{ 
-        scale, 
-        opacity,
-        width: `${(index + 1) * 45}%`,
-        height: `${(index + 1) * 45}%`
-      }}
-      animate={{
-        borderColor: ["rgba(0, 255, 102, 0.1)", "rgba(0, 255, 102, 0.4)", "rgba(0, 255, 102, 0.1)"],
-        borderWidth: [1, 2, 1],
-      }}
-      transition={{
-        duration: 3 + index,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-neon/30 pointer-events-none"
-    />
-  );
-};
+
 
 const VaultPanel: React.FC<VaultPanelProps> = ({ letter, project, index, activeIndex, setActiveIndex, onSelect }) => {
   const isActive = activeIndex === index;
@@ -582,66 +558,7 @@ const ProjectModal = ({ project, onClose }: { project: Project | null, onClose: 
   );
 };
 
-const VisionRing = ({ index, scrollProgress }: { index: number; scrollProgress: MotionValue<number> }) => {
-  const scale = useTransform(scrollProgress, [0, 1], [0.3 + index * 0.2, 2.5 + index * 0.2]);
-  const opacity = useTransform(scrollProgress, [0, 0.3, 0.7, 1], [0, 0.2, 0.2, 0]);
-  const rotateX = useTransform(scrollProgress, [0, 1], [45, -45]);
-  const rotateY = useTransform(scrollProgress, [0, 1], [-30, 30]);
-  
-  return (
-    <motion.div
-      style={{ 
-        scale, 
-        opacity,
-        rotateX,
-        rotateY,
-        width: `${(index + 1) * 25}vw`,
-        height: `${(index + 1) * 25}vw`,
-        perspective: 1000
-      }}
-      animate={{
-        borderColor: ["rgba(0, 255, 102, 0.05)", "rgba(0, 255, 102, 0.3)", "rgba(0, 255, 102, 0.05)"],
-        borderWidth: [1, 2, 1],
-      }}
-      transition={{
-        duration: 5 + index,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed"
-    />
-  );
-};
 
-const OrbitingParticle = ({ index }: { index: number }) => {
-  return (
-    <motion.div
-      animate={{
-        rotate: 360,
-      }}
-      transition={{
-        duration: 15 + index * 5,
-        repeat: Infinity,
-        ease: "linear"
-      }}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-      style={{ width: `${20 + index * 15}vw`, height: `${20 + index * 15}vw` }}
-    >
-      <motion.div 
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.2, 0.8, 0.2],
-        }}
-        transition={{
-          duration: 2 + index,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-neon rounded-full shadow-[0_0_10px_rgba(0,255,102,1)]"
-      />
-    </motion.div>
-  );
-};
 
 const KnowledgeDNA = () => {
   const containerRef = useRef<HTMLElement>(null);
@@ -961,64 +878,7 @@ const PixelTransition = () => {
 
 
 
-const AscensionParticles = ({ progress }: { progress: MotionValue<number> }) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        let stars = Array.from({ length: 100 }, () => ({
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            z: Math.random() * 2, 
-            speed: Math.random() * 2 + 0.5
-        }));
-
-        let animationFrameId: number;
-
-        const render = () => {
-            const p = progress.get(); // 0 to 1
-            const speedMult = 1 + p * 20; // Speed increases with scroll
-
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const w = canvas.width;
-            const h = canvas.height;
-
-            ctx.clearRect(0, 0, w, h);
-            
-            ctx.fillStyle = '#ffffff';
-
-            stars.forEach(star => {
-                // Move star "down" to simulate moving UP.
-                star.y += star.speed * speedMult;
-                
-                // Reset if out of bounds
-                if (star.y > h) {
-                    star.y = 0;
-                    star.x = Math.random() * w;
-                }
-
-                const size = Math.max(0.5, (star.speed * speedMult) / 5);
-                const alpha = Math.min(1, (star.speed * speedMult) / 10);
-                
-                ctx.globalAlpha = alpha;
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            animationFrameId = requestAnimationFrame(render);
-        };
-        render();
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [progress]);
-
-    return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-50" />;
-}
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -1069,7 +929,7 @@ export default function App() {
         <FadeIn>
           <div className="text-[10px] font-mono tracking-[0.8em] text-neon uppercase mb-12 flex items-center gap-6 justify-center">
             <span className="w-12 h-[1px] bg-neon" /> 
-            Engineering Digital Power
+            DEFINING THE DIGITAL EDGE
             <span className="w-12 h-[1px] bg-neon" />
           </div>
           <h1 className="text-[12vw] md:text-[10vw] font-display font-black leading-[0.8] tracking-tighter uppercase">
@@ -1122,8 +982,8 @@ export default function App() {
           <div className="md:col-span-12 glass p-6 md:p-12 rounded-[2.5rem] flex flex-col justify-between neon-glow-hover neon-glow transition-all duration-500" style={{ transform: "translateZ(30px)" }}>
             <Cpu className="text-neon mb-6 md:mb-12" size={40} />
             <div className="space-y-4">
-              <div className="text-3xl md:text-5xl font-display uppercase tracking-tighter">METHODE</div>
-              <p className="text-white/40 text-sm uppercase tracking-widest"> ALWAYS LOVE TO THINK DIFFERENT </p>
+              <div className="text-3xl md:text-5xl font-display uppercase tracking-tighter">METHOD</div>
+              <p className="text-white/40 text-sm uppercase tracking-widest">BUILDING DIFFERENT SINCE 3years</p>
             </div>
           </div>
         </motion.div>
@@ -1136,13 +996,13 @@ export default function App() {
             <div className="space-y-12">
               <div>
                 <div className="text-[10px] font-mono tracking-[0.4em] text-neon mb-6 uppercase">System Capabilities</div>
-                <h2 className="text-4xl md:text-8xl font-display uppercase tracking-tighter leading-none">Radar <br /> Interface</h2>
+                <h2 className="text-4xl md:text-8xl font-display uppercase tracking-tighter leading-none">Capability  <br /> Array</h2>
               </div>
               
               <div className="space-y-12">
                 {[
                   { label: "Core Systems", skills: ["React", "TypeScript", "js", "css"] },
-                  { label: "Design Logic", skills: ["UI Systems", "Layout Architecture", "social media post designer", "poster designer", "presentation designer", ""] },
+                  { label: "Design Logic", skills: ["UI Systems", "Layout Architecture", "social media post designer", "poster designer", "presentation designer"] },
                   { label: "learning", skills: ["word-press", "Sensors", "advance js", "web-design", "IoT", "debating", "prompt Engineering", "AI"] },
                   { label: "passionate to", skills: ["boxing", "workout", "arm wrestling", "cooking", "experience something unique..."] }
                 ].map((group, i) => (
