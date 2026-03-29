@@ -13,7 +13,8 @@ import dialcraftImg from './images/640278467_122203525586563833_3738548141300404
 import colorPaletteImg from './images/Screenshot 2026-03-09 011828.png';
 import brightBdImg from './images/Screenshot 2026-03-09 231854.png';
 import aiFinderImg from './images/Screenshot 2026-03-09 231719.png';
-import blogSiteImg from './images/image.png';
+import blogSiteImg from './images/image1.png';
+import myselfImg from './images/1878312872148782_3242345_45243.jpg';
 
 // --- Types & Data ---
 
@@ -67,6 +68,8 @@ interface VaultPanelProps {
 interface DNAStrandProps {
   strand: Strand;
   globalRotation: MotionValue<number>;
+  radius: number;
+  isHoveredGlobal?: React.MutableRefObject<boolean>;
 }
 
 const projects: Project[] = [
@@ -486,25 +489,26 @@ const ProjectModal = ({ project, onClose }: { project: Project | null, onClose: 
             {/* Close Button */}
             <button 
               onClick={onClose}
-              className="absolute top-8 right-8 z-50 p-4 bg-white/5 hover:bg-white hover:text-black rounded-full transition-all duration-300 mix-blend-difference"
+              className="absolute top-4 right-4 md:top-8 md:right-8 z-50 p-2 md:p-4 bg-white/10 md:bg-white/5 hover:bg-white hover:text-black rounded-full transition-all duration-300 mix-blend-difference"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 md:w-6 md:h-6" />
             </button>
             
             {/* Left: Immersive Visual */}
-            <div className="w-full md:w-1/2 h-[40vh] md:h-full relative overflow-hidden">
+            <div className="w-full md:w-1/2 h-[35vh] md:h-full relative overflow-hidden shrink-0">
               <motion.img 
                 initial={{ scale: 1.1 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
                 src={project.image} 
                 alt={project.title} 
-                className="w-full h-full object-cover opacity-80"
+                className="w-full h-full object-cover object-top opacity-90"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent md:bg-gradient-to-r" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent md:bg-gradient-to-r" />
               
-              <div className="absolute bottom-12 left-12 md:bottom-24 md:left-24">
+              {/* Desktop Title Overlay */}
+              <div className="hidden md:block absolute bottom-24 left-24">
                 <div className={`text-xs ${style.font} tracking-[0.5em] uppercase opacity-70 mb-4 text-white`}>
                   {project.era} // {project.category}
                 </div>
@@ -515,15 +519,25 @@ const ProjectModal = ({ project, onClose }: { project: Project | null, onClose: 
             </div>
             
             {/* Right: Content */}
-            <div className="w-full md:w-1/2 h-full overflow-y-auto custom-scrollbar bg-black p-8 md:p-24 flex flex-col justify-center">
+            <div className="w-full md:w-1/2 flex-1 md:h-full overflow-y-auto custom-scrollbar bg-black p-6 pt-20 md:p-24 flex flex-col justify-start md:justify-center">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
-                className="max-w-xl space-y-16"
+                className="max-w-xl space-y-8 md:space-y-16"
               >
+                {/* Mobile Title */}
+                <div className="md:hidden pt-4 space-y-3">
+                  <div className={`text-[10px] ${style.font} tracking-[0.3em] uppercase opacity-70 text-white`}>
+                    {project.era} // {project.category}
+                  </div>
+                  <h2 className="text-4xl font-sans font-black uppercase tracking-tighter leading-none text-white">
+                    {project.title}
+                  </h2>
+                </div>
+
                 <div>
-                  <p className="text-2xl md:text-3xl font-light text-white/70 leading-relaxed">
+                  <p className="text-xl md:text-3xl font-light text-white/70 leading-relaxed whitespace-pre-line">
                     {project.description}
                   </p>
                 </div>
@@ -633,6 +647,16 @@ const KnowledgeDNA = () => {
   const containerRef = useRef<HTMLElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-10%" });
   const [showPixelation, setShowPixelation] = useState(false);
+  const [radius, setRadius] = useState(150);
+
+  useEffect(() => {
+    const updateRadius = () => {
+      setRadius(window.innerWidth < 768 ? 60 : 150);
+    };
+    updateRadius();
+    window.addEventListener('resize', updateRadius);
+    return () => window.removeEventListener('resize', updateRadius);
+  }, []);
 
   useEffect(() => {
     if (isInView) {
@@ -642,13 +666,26 @@ const KnowledgeDNA = () => {
     }
   }, [isInView]);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  const rotation = useMotionValue(0);
+  const isHoveredGlobal = useRef(false);
 
-  const rotation = useTransform(scrollYProgress, [0, 1], [0, 720]); // 2 full rotations
-  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);
+  useEffect(() => {
+    let animationFrameId: number;
+    let lastTime = performance.now();
+    const animate = (now: number) => {
+      const delta = now - lastTime;
+      lastTime = now;
+      // Rotate faster, pause if hovered
+      if (!isHoveredGlobal.current) {
+        rotation.set(rotation.get() + delta * 0.035);
+      }
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [rotation]);
+
+  const opacity = 1; // Constant opacity now that we aren't scrolling through it
 
   const milestones = [
     { 
@@ -693,8 +730,8 @@ const KnowledgeDNA = () => {
   });
 
   return (
-    <section ref={containerRef} className="h-[400vh] bg-black relative z-10">
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-black">
+    <section ref={containerRef} className="min-h-[80vh] md:min-h-screen bg-black relative z-10 py-24 flex flex-col">
+      <div className="relative w-full flex-1 min-h-[60vh] md:min-h-[80vh] overflow-hidden flex items-center justify-center bg-black">
         
         {/* Insane Entry Effect: Pixelation */}
         <AnimatePresence>
@@ -710,33 +747,35 @@ const KnowledgeDNA = () => {
         {/* DNA Helix Container */}
         <motion.div 
           style={{ opacity }}
-          className="relative w-full max-w-4xl h-[80vh] flex flex-col items-center justify-center perspective-[1000px]"
+          className="relative w-full max-w-4xl h-[80vh] flex flex-col items-center justify-center perspective-[1000px] z-10"
         >
            {strands.map((strand) => (
              <DNAStrand 
                key={strand.index} 
                strand={strand} 
-               globalRotation={rotation} 
+               globalRotation={rotation}
+               radius={radius}
+               isHoveredGlobal={isHoveredGlobal}
              />
            ))}
         </motion.div>
 
         {/* Scientific HUD */}
-        <div className="absolute top-12 left-12 font-mono text-[10px] text-neon/40 space-y-2 pointer-events-none">
+        <div className="absolute top-24 left-6 md:top-12 md:left-12 font-mono text-[10px] text-neon/40 space-y-2 pointer-events-none z-0 opacity-50 md:opacity-100">
            <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-neon animate-pulse" />
               <span>SEQUENCE_ANALYSIS: ACTIVE</span>
            </div>
            <div>GENOME_ID: KNOWLEDGE_DNA_v4.8</div>
-           <div className="text-white/20">
+           <div className="text-white/20 hidden md:block">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i}>{Math.random().toString(16).substring(2, 15).toUpperCase()}</div>
               ))}
            </div>
         </div>
 
-        <div className="absolute bottom-12 right-12 font-mono text-[10px] text-neon/40 text-right pointer-events-none">
-           <div>MUTATION_RATE: <motion.span>{useTransform(scrollYProgress, v => (v * 0.5 + 0.1).toFixed(2))}</motion.span>%</div>
+        <div className="absolute bottom-24 right-6 md:bottom-12 md:right-12 font-mono text-[10px] text-neon/40 text-right pointer-events-none z-0 opacity-50 md:opacity-100">
+           <div>MUTATION_RATE: <motion.span>{useTransform(rotation, v => ((v % 100) * 0.05 + 0.1).toFixed(2))}</motion.span>%</div>
            <div>EVOLUTIONARY_STABILITY: NOMINAL</div>
         </div>
 
@@ -745,14 +784,24 @@ const KnowledgeDNA = () => {
   );
 };
 
-const DNAStrand: React.FC<DNAStrandProps> = ({ strand, globalRotation }) => {
+const DNAStrand: React.FC<DNAStrandProps> = ({ strand, globalRotation, radius, isHoveredGlobal }) => {
   const [isHovered, setIsHovered] = useState(false);
+  
+  const handleHoverStart = () => {
+    setIsHovered(true);
+    if (isHoveredGlobal) isHoveredGlobal.current = true;
+  };
+  
+  const handleHoverEnd = () => {
+    setIsHovered(false);
+    if (isHoveredGlobal) isHoveredGlobal.current = false;
+  };
   
   // Calculate local rotation based on global scroll rotation + strand's fixed angle
   const rotateY = useTransform(globalRotation, (r: number) => r + (strand.angle * 180) / Math.PI);
   
   // X position based on sine of rotation
-  const xOffset = 150; // Radius of helix
+  const xOffset = radius; // Radius of helix
   const x1 = useTransform(rotateY, (r) => Math.sin((r * Math.PI) / 180) * xOffset);
   const x2 = useTransform(rotateY, (r) => Math.sin(((r + 180) * Math.PI) / 180) * xOffset);
   
@@ -792,34 +841,44 @@ const DNAStrand: React.FC<DNAStrandProps> = ({ strand, globalRotation }) => {
       {/* Milestone Content (If present) */}
       {milestone && (
         <motion.div
-          onHoverStart={() => setIsHovered(true)}
-          onHoverEnd={() => setIsHovered(false)}
+          onHoverStart={handleHoverStart}
+          onHoverEnd={handleHoverEnd}
+          onClick={() => {
+            // For mobile toggle
+            if (window.innerWidth < 768) {
+              if (isHovered) {
+                handleHoverEnd();
+              } else {
+                handleHoverStart();
+              }
+            }
+          }}
           style={{ 
-            x: milestone.side === 'left' ? useTransform(x1, v => v - 20) : useTransform(x2, v => v + 20),
+            x: milestone.side === 'left' ? useTransform(x1, v => v - (window.innerWidth < 768 ? 10 : 20)) : useTransform(x2, v => v + (window.innerWidth < 768 ? 10 : 20)),
             opacity: useTransform(z1, milestone.side === 'left' ? [-xOffset, xOffset] : [xOffset, -xOffset], [0, 1]),
             pointerEvents: 'auto'
           }}
-          className={`absolute ${milestone.side === 'left' ? 'right-[50%] pr-12 text-right' : 'left-[50%] pl-12 text-left'} group cursor-pointer`}
+          className={`absolute ${milestone.side === 'left' ? 'right-[50%] pr-4 md:pr-12 text-right' : 'left-[50%] pl-4 md:pl-12 text-left'} group cursor-pointer w-[40vw] md:w-[30vw]`}
         >
            <motion.div 
              animate={isHovered ? { scale: 1.05, x: milestone.side === 'left' ? -10 : 10 } : { scale: 1, x: 0 }}
              className="relative"
            >
-              <div className="text-sm font-mono text-neon/60 mb-1 tracking-widest">{milestone.year} // {milestone.evolution}</div>
-          <h3 className="text-2xl md:text-3xl font-display font-bold !text-white uppercase tracking-normal leading-tight">
+              <div className="text-[8px] md:text-sm font-mono text-neon/60 mb-1 tracking-widest">{milestone.year} // {milestone.evolution}</div>
+          <h3 className="text-[12px] md:text-3xl font-display font-bold !text-white uppercase tracking-normal leading-tight">
             {milestone.title}
           </h3>
-          <div className="text-sm font-mono !text-white/40 uppercase mb-4 tracking-wide">{milestone.org}</div>
+          <div className="text-[8px] md:text-sm font-mono !text-white/40 uppercase mb-2 md:mb-4 tracking-wide">{milestone.org}</div>
               
               <AnimatePresence>
                 {isHovered && (
-                  <motion.div
+                  <motion.div 
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <p className="text-base text-white/60 font-light leading-relaxed max-w-[250px] ml-auto">
+                    <p className={`text-[10px] md:text-base text-white/60 font-light leading-relaxed max-w-[120px] md:max-w-[250px] ${milestone.side === 'left' ? 'ml-auto' : 'mr-auto'}`}>
                       {milestone.details}
                     </p>
                   </motion.div>
@@ -988,7 +1047,7 @@ export default function App() {
   const identityScale = useTransform(identityScroll, [0, 0.5, 1], [0.95, 1, 0.95]);
 
   return (
-    <div ref={containerRef} className="min-h-screen font-sans cursor-none relative">
+    <div ref={containerRef} className="min-h-screen font-sans cursor-none relative overflow-x-hidden w-full max-w-full">
       <CustomCursor />
       <div className="grain" />
       <div className="noise-bg" />
@@ -1013,7 +1072,7 @@ export default function App() {
             Engineering Digital Power
             <span className="w-12 h-[1px] bg-neon" />
           </div>
-          <h1 className="text-[15vw] md:text-[12vw] font-display font-black leading-[0.8] tracking-tighter uppercase">
+          <h1 className="text-[12vw] md:text-[10vw] font-display font-black leading-[0.8] tracking-tighter uppercase">
             M U S T A K I M <br />
             <span className="text-outline">SAWOD.</span>
           </h1>
@@ -1051,12 +1110,12 @@ export default function App() {
             </p>
           </div>
           
-          <div className="md:col-span-4 glass p-6 md:p-12 rounded-[2.5rem] flex flex-col justify-between neon-glow-hover neon-glow transition-all duration-500 relative min-h-[300px]" style={{ transform: "translateZ(30px)" }}>
-            <img src="/src/images/1878312872148782_3242345_45243.jpg" alt="User Photo" className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
-            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black to-transparent rounded-b-2xl" />
-            <div className="relative z-10 flex flex-col justify-end h-full p-4">
-              <div className="text-3xl md:text-5xl font-display uppercase tracking-tighter text-white">myself</div>
-              <p className="text-white/40 text-sm uppercase tracking-widest mt-2">Crafting Digital Experiences</p>
+          <div className="md:col-span-4 glass p-6 md:p-12 rounded-[2.5rem] flex flex-col justify-between neon-glow-hover neon-glow transition-all duration-500 relative min-h-[400px]" style={{ transform: "translateZ(30px)" }}>
+            <img src={myselfImg} alt="User Photo" className="absolute inset-0 w-full h-full object-cover object-top rounded-[2.5rem]" />
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/60 to-transparent rounded-b-[2.5rem]" />
+            <div className="relative z-10 flex flex-col justify-end h-full pt-20">
+              <div className="text-3xl md:text-5xl font-display uppercase tracking-tighter text-white drop-shadow-md">MYSELF</div>
+              <p className="text-white/80 text-sm uppercase tracking-widest mt-2 drop-shadow-md">Crafting Digital Experiences</p>
             </div>
           </div>
 
